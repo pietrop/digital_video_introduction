@@ -2,6 +2,7 @@
 [🇯🇵](/README-ja.md "Japanese")
 [🇮🇹](/README-it.md "Italian")
 [🇰🇷](/README-ko.md "Korean")
+[🇷🇺](/README-ru.md "Russian")
 
 [![license](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)
 
@@ -27,6 +28,7 @@ All the **hands-on should be performed from the folder you cloned** this reposit
 * added DRM system
 * released version 1.0.0
 * added simplified Chinese translation
+* added FFmpeg oscilloscope filter example
 
 # Index
 
@@ -247,6 +249,8 @@ These schemas are known as subsampling systems and are expressed as a 3 part rat
 
 Common schemes used in modern codecs are: **4:4:4** *(no subsampling)*, **4:2:2, 4:1:1, 4:2:0, 4:1:0 and 3:1:1**.
 
+> You can follow some discussions [to learn more about Chroma Subsampling](https://github.com/leandromoreira/digital_video_introduction/issues?q=YCbCr).
+
 > **YCbCr 4:2:0 merge**
 >
 > Here's a merged piece of an image using YCbCr 4:2:0, notice that we only spend 12 bits per pixel.
@@ -267,6 +271,18 @@ Previously we had calculated that we needed [278GB of storage to keep a video fi
 > You can [check the YCbCr histogram with ffmpeg.](/encoding_pratical_examples.md#generates-yuv-histogram) This scene has a higher blue contribution, which is showed by the [histogram](https://en.wikipedia.org/wiki/Histogram).
 >
 > ![ycbcr color histogram](/i/yuv_histogram.png "ycbcr color histogram")
+
+### Color, luma, luminance, gamma video review
+
+Watch this incredible video explaining what is luma and learn about luminance, gamma, and color.
+[![Analog Luma - A history and explanation of video](http://img.youtube.com/vi/Ymt47wXUDEU/0.jpg)](http://www.youtube.com/watch?v=Ymt47wXUDEU)
+
+> ### Hands-on: Check YCbCr intensity
+> You can visualize the Y intensity for a given line of a video using [FFmpeg's oscilloscope filter](https://ffmpeg.org/ffmpeg-filters.html#oscilloscope).
+> ```bash
+> ffplay -f lavfi -i 'testsrc2=size=1280x720:rate=30000/1001,format=yuv420p' -vf oscilloscope=x=0.5:y=200/720:s=1:c=1
+> ```
+> ![y color oscilloscope](/i/ffmpeg_oscilloscope.png "y color oscilloscope")
 
 ## Frame types
 
@@ -355,7 +371,7 @@ You can [play around with these concepts using jupyter](/frame_difference_vs_mot
 >
 > ![inter prediction (motion vectors) with ffmpeg](/i/motion_vectors_ffmpeg.png "inter prediction (motion vectors) with ffmpeg")
 >
-> Or we can use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) (which is paid but there is a free trial version which limits you to only the first 10 frames).
+> Or we can use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) (which is paid but there is a free trial version which limits you to only work with the first 10 frames).
 >
 > ![inter prediction intel video pro analyzer](/i/inter_prediction_intel_video_pro_analyzer.png "inter prediction intel video pro analyzer")
 
@@ -381,12 +397,14 @@ Our **prediction can be wrong**, for that reason we need to apply this technique
 
 ![](/i/smw_residual.png)
 
+There are many different types of this sort of prediction. The one you see pictured here is a form of straight planar prediction, where the pixels from the row above the block are copied row to row within the block. Planar prediction also can involve an angular component, where pixels from both the left and the top are used to help predict the current block. And there is also DC prediction, which involves taking the average of the samples right above and to the left of the block. 
+
 > #### Hands-on: Check intra predictions
 > You can [generate a video with macro blocks and their predictions with ffmpeg.](/encoding_pratical_examples.md#generate-debug-video) Please check the ffmpeg documentation to understand the [meaning of each block color](https://trac.ffmpeg.org/wiki/Debug/MacroblocksAndMotionVectors#AnalyzingMacroblockTypes).
 >
 > ![intra prediction (macro blocks) with ffmpeg](/i/macro_blocks_ffmpeg.png "inter prediction (motion vectors) with ffmpeg")
 >
-> Or we can use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) (which is paid but there is a free trial version which limits you to only the first 10 frames).
+> Or we can use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) (which is paid but there is a free trial version which limits you to only work with the first 10 frames).
 >
 > ![intra prediction intel video pro analyzer](/i/intra_prediction_intel_video_pro_analyzer.png "intra prediction intel video pro analyzer")
 
@@ -408,7 +426,7 @@ Before we jump into the inner workings of a generic codec, let's look back to un
 
 The video codec [H.261](https://en.wikipedia.org/wiki/H.261)  was born in 1990 (technically 1988), and it was designed to work with **data rates of 64 kbit/s**. It already uses ideas such as chroma subsampling, macro block, etc. In the year of 1995, the **H.263** video codec standard was published and continued to be extended until 2001.
 
-In 2003 the first version of **H.264/AVC** was completed. In the same year, a company called **TrueMotion** released their video codec as a **royalty-free** lossy video compression called **VP3**. In 2008, **Google bought** this company, releasing **VP8** in the same year. In December of 2012, Google released the **VP9** and it's  **supported by roughly ¾ of the browser market** (mobile included).
+In 2003 the first version of **H.264/AVC** was completed. In the same year, **On2 Technologies**  (formerly known as the Duck Corporation) released their video codec as a **royalty-free** lossy video compression called **VP3**. In 2008, **Google bought** this company, releasing **VP8** in the same year. In December of 2012, Google released the **VP9** and it's  **supported by roughly ¾ of the browser market** (mobile included).
 
  **[AV1](https://en.wikipedia.org/wiki/AOMedia_Video_1)** is a new **royalty-free** and open source video codec that's being designed by the [Alliance for Open Media (AOMedia)](http://aomedia.org/), which is composed of the **companies: Google, Mozilla, Microsoft, Amazon, Netflix, AMD, ARM, NVidia, Intel and Cisco** among others. The **first version** 0.1.0 of the reference codec was **published on April 7, 2016**.
 
@@ -423,11 +441,11 @@ In 2003 the first version of **H.264/AVC** was completed. In the same year, a co
 > * **content fee** (0.5% of revenue) and
 > * **per-unit fees about 10 times higher than h264**.
 >
-> The [alliance for open media](http://aomedia.org/about-us/) was created by companies from hardware manufacturer (Intel, AMD, ARM , Nvidia, Cisco), content delivery (Google, Netflix, Amazon), browser maintainers (Google, Mozilla), and others.
+> The [alliance for open media](http://aomedia.org/about/) was created by companies from hardware manufacturer (Intel, AMD, ARM , Nvidia, Cisco), content delivery (Google, Netflix, Amazon), browser maintainers (Google, Mozilla), and others.
 >
 > The companies had a common goal, a royalty-free video codec and then AV1 was born with a much [simpler patent license](http://aomedia.org/license/patent/). **Timothy B. Terriberry** did an awesome presentation, which is the source of this section, about the [AV1 conception, license model and its current state](https://www.youtube.com/watch?v=lzPaldsmJbk).
 >
-> You'll be surprised to know that you can **analyze the AV1 codec through your browser**, go to http://aomanalyzer.org/
+> You'll be surprised to know that you can **analyze the AV1 codec through your browser**, go to https://arewecompressedyet.com/analyzer/
 >
 > ![av1 browser analyzer](/i/av1_browser_analyzer.png "av1 browser analyzer")
 >
@@ -450,7 +468,7 @@ Usually, the CODECs **organize these partitions** into slices (or tiles), macro 
 Remember that we learned how **frames are typed**?! Well, you can **apply those ideas to blocks** too, therefore we can have I-Slice, B-Slice, I-Macroblock and etc.
 
 > ### Hands-on: Check partitions
-> We can also use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) (which is paid but there is a free trial version which limits you to only the first 10 frames). Here are [VP9 partitions](/encoding_pratical_examples.md#transcoding) analyzed.
+> We can also use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) (which is paid but there is a free trial version which limits you to only work with the first 10 frames). Here are [VP9 partitions](/encoding_pratical_examples.md#transcoding) analyzed.
 >
 > ![VP9 partitions view intel video pro analyzer ](/i/paritions_view_intel_video_pro_analyzer.png "VP9 partitions view intel video pro analyzer")
 
@@ -666,7 +684,7 @@ If we skip the first synchronization marker we can decode the **first byte** to 
 
 For instance the first byte after the synchronization marker is `01100111`, where the first bit (`0`) is to the field **forbidden_zero_bit**, the next 2 bits (`11`) tell us the field **nal_ref_idc** which indicates whether this NAL is a reference field or not and the rest 5 bits (`00111`) inform us the field **nal_unit_type**, in this case, it's a **SPS** (7) NAL unit.
 
-The second byte (`binary=01100100, hex=0x64, dec=100`) of an SPS NAL is the field **profile_idc** which shows the profile that the encoder has used, in this case, we used  the **[constrained high-profile](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC#Profiles)**, it's a high profile without the support of B (bi-predictive) slices.
+The second byte (`binary=01100100, hex=0x64, dec=100`) of an SPS NAL is the field **profile_idc** which shows the profile that the encoder has used, in this case, we used the **[high profile](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC#Profiles)**. Also the third byte contains several flags which determine the exact profile (like constrained or progressive). But in our case the third byte is 0x00 and therefore the encoder has used just high profile.
 
 ![SPS binary view](/i/minimal_yuv420_bin.png "SPS binary view")
 
@@ -707,7 +725,7 @@ We can explore others bitstreams like the [VP9 bitstream](https://storage.google
 >
 > ![mediainfo details h264 bitstream](/i/mediainfo_details_1.png "mediainfo details h264 bitstream")
 >
-> We can also use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) which is paid but there is a free trial version which limits you to only the first 10 frames but that's okay for learning purposes.
+> We can also use the [Intel Video Pro Analyzer](https://software.intel.com/en-us/intel-video-pro-analyzer) which is paid but there is a free trial version which limits you to only work with the first 10 frames but that's okay for learning purposes.
 >
 > ![intel video pro analyzer details h264 bitstream](/i/intel-video-pro-analyzer.png "intel video pro analyzer details h264 bitstream")
 
@@ -727,7 +745,7 @@ Now that we know more about how codecs work, then it is easy to understand how n
 
 We will compare AVC and HEVC, let's keep in mind that it is almost always a trade-off between more CPU cycles (complexity) and compression rate.
 
-HEVC has bigger and more **partitions** (and **sub-partitions**) options than AVC, more **intra predictions directions**, **improved entropy coding** and more, all these improvements made H.265 capable to compress 50% more than H.264.
+HEVC has bigger and more **partitions** (and **sub-partitions**) options than AVC, more **intra predictions directions/angles**, **improved entropy coding** and more, all these improvements made H.265 capable to compress 50% more than H.264.
 
 ![h264 vs h265](/i/avc_vs_hevc.png "H.264 vs H.265")
 
@@ -768,7 +786,7 @@ In real life production systems, people often use both techniques to provide aut
 
 #### What?
 
-DRM means Digital rights management, it's a way **to provide copyright protection for digital media**, for instance, digital video and audio. Although it's used in many places [it's not universally accepted](https://en.wikipedia.org/wiki/Digital_rights_management#DRM-free_works).
+DRM means [Digital rights management](https://sander.saares.eu/categories/drm-is-not-a-black-box/), it's a way **to provide copyright protection for digital media**, for instance, digital video and audio. Although it's used in many places [it's not universally accepted](https://en.wikipedia.org/wiki/Digital_rights_management#DRM-free_works).
 
 #### Why?
 
@@ -821,6 +839,8 @@ Online Courses and Tutorials:
 * https://people.xiph.org/~tterribe/pubs/lca2012/auckland/intro_to_video1.pdf
 * https://xiph.org/video/vid1.shtml
 * https://xiph.org/video/vid2.shtml
+* https://wiki.multimedia.cx
+* https://mahanstreamer.net
 * http://slhck.info/ffmpeg-encoding-course
 * http://www.cambridgeincolour.com/tutorials/camera-sensors.htm
 * http://www.slideshare.net/vcodex/a-short-history-of-video-coding
@@ -833,8 +853,17 @@ Books:
 
 * https://www.amazon.com/Understanding-Compression-Data-Modern-Developers/dp/1491961538/ref=sr_1_1?s=books&ie=UTF8&qid=1486395327&sr=1-1
 * https://www.amazon.com/H-264-Advanced-Video-Compression-Standard/dp/0470516925
+* https://www.amazon.com/High-Efficiency-Video-Coding-HEVC/dp/3319068946
 * https://www.amazon.com/Practical-Guide-Video-Audio-Compression/dp/0240806301/ref=sr_1_3?s=books&ie=UTF8&qid=1486396914&sr=1-3&keywords=A+PRACTICAL+GUIDE+TO+VIDEO+AUDIO
 * https://www.amazon.com/Video-Encoding-Numbers-Eliminate-Guesswork/dp/0998453005/ref=sr_1_1?s=books&ie=UTF8&qid=1486396940&sr=1-1&keywords=jan+ozer
+
+Onboarding material:
+
+* https://github.com/Eyevinn/streaming-onboarding
+* https://howvideo.works/
+* https://www.aws.training/Details/eLearning?id=17775
+* https://www.aws.training/Details/eLearning?id=17887
+* https://www.aws.training/Details/Video?id=24750
 
 Bitstream Specifications:
 
@@ -852,6 +881,8 @@ Software:
 * https://ffmpeg.org/
 * https://ffmpeg.org/ffmpeg-all.html
 * https://ffmpeg.org/ffprobe.html
+* https://mediaarea.net/en/MediaInfo
+* https://www.jongbel.com/
 * https://trac.ffmpeg.org/wiki/
 * https://software.intel.com/en-us/intel-video-pro-analyzer
 * https://medium.com/@mbebenita/av1-bitstream-analyzer-d25f1c27072b#.d5a89oxz8
@@ -940,3 +971,4 @@ Miscellaneous:
 * https://www.youtube.com/watch?v=Lto-ajuqW3w&list=PLzH6n4zXuckpKAj1_88VS-8Z6yn9zX_P6
 * https://www.youtube.com/watch?v=LWxu4rkZBLw
 * https://web.stanford.edu/class/ee398a/handouts/lectures/EE398a_MotionEstimation_2012.pdf
+* https://sander.saares.eu/categories/drm-is-not-a-black-box/
